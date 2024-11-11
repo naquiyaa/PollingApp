@@ -3,6 +3,7 @@ import { TextField, Button, Container, Typography, Alert, IconButton, InputAdorn
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/authApi';
+import { getUser } from '../api/userApi';
 
 const Login = ({ setIsAuthenticated }) => {
   const [email, setEmail] = useState('');
@@ -34,7 +35,11 @@ const Login = ({ setIsAuthenticated }) => {
     if (!isValid) return;
 
     try {
-      await loginUser({ email, password });
+     const token =  await loginUser({ email, password });
+      const userData = await getUser(token);
+      localStorage.setItem("userId", userData.userId);
+          localStorage.setItem("userEmail", userData.email);
+          localStorage.setItem("userName", userData.name);
       setIsAuthenticated(true);
       navigate('/');  // Redirect to home page after successful login
     } catch (error) {

@@ -27,7 +27,7 @@ const theme = createTheme({
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [token, setToken] = useState(localStorage.getItem("token"));
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     if (token) {

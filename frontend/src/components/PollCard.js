@@ -3,6 +3,9 @@ import React from 'react';
 import { Card, CardContent, Typography, Box, Button } from '@mui/material';
 
 const PollCard = ({ poll, handleVote, onEdit, isUserLoggedIn, userId }) => {
+  console.log("naqu0: ", isUserLoggedIn)
+  console.log("naqu1: ", poll.createdBy);
+  console.log("naqu2: ", userId)
   return (
     <Card>
       <CardContent>
@@ -38,7 +41,7 @@ const PollCard = ({ poll, handleVote, onEdit, isUserLoggedIn, userId }) => {
         </Box>
 
         {/* Display Edit button if the user is logged in */}
-        {isUserLoggedIn && userId === poll.userId && (
+        {isUserLoggedIn && userId === poll.createdBy && (
           <Button
             variant="outlined"
             color="secondary"

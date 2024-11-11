@@ -26,6 +26,7 @@ const Home = () => {
       fetchUserPollsByUser(); // Fetch polls created by the logged-in user
     } else {
       console.log('User is not logged in.'); // Debugging
+      setIsUserLoggedIn(false);
     }
   }, []);
 
@@ -208,7 +209,7 @@ const Home = () => {
         {(viewingUserPolls ? userPolls : polls).map((poll) => (
           <Grid item xs={12} sm={6} md={4} key={poll._id}>
             <PollCard poll={poll} onVote={handleVote} onEdit={handleEditPoll}
-            isUserPoll={poll.userId === localStorage.getItem('userId')}   />
+            isUserLoggedIn={poll.createdBy === localStorage.getItem('userId')} userId={localStorage.getItem('userId')}  />
           </Grid>
         ))}
       </Grid>

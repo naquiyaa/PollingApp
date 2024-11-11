@@ -43,5 +43,5 @@ export const loginUser = async (userData) => {
   console.log("responsenaqu: ", response);
   console.log("responsetokennaqu: ", response.token);
   saveToken(token);  // Save token if available
-  return response;
+  return response.token;
 };
