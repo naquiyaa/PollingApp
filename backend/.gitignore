@@ -1,0 +1,41 @@
+# Environment variables
+.env
+
+# Node modules
+/node_modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE/editor-specific files
+.vscode/
+.idea/
+
+# OS-specific files
+*.swp
+.sass-cache/
+*.sublime-project
+*.sublime-workspace
+
+# Optional npm cache directory
+.npm/
+
+# Ignore build files and temporary files
+dist/
+tmp/
+out/
+
+# Ignore coverage reports from tests
+coverage/
+
+# Ignore any debug files
+debug.log
