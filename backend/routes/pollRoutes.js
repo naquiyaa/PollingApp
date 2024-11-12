@@ -16,7 +16,7 @@ router.get("/user/:userId", getPollsByUser);
 router.post("/vote", votePoll);
 
 // Route to update a poll (protected)
-router.put("/", isRegisteredUser, updatePoll);
+router.put("/:pollId", isRegisteredUser, updatePoll);
 
 // Route to delete a poll (protected)
 router.delete("/:id", isRegisteredUser, deletePoll);
