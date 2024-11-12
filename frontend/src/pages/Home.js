@@ -208,7 +208,7 @@ const Home = () => {
         {/* Show the user's polls if viewingUserPolls is true */}
         {(viewingUserPolls ? userPolls : polls).map((poll) => (
           <Grid item xs={12} sm={6} md={4} key={poll._id}>
-            <PollCard poll={poll} onVote={handleVote} onEdit={handleEditPoll}
+            <PollCard poll={poll} handleVote={handleVote} onEdit={handleEditPoll}
             isUserLoggedIn={poll.createdBy === localStorage.getItem('userId')} userId={localStorage.getItem('userId')}  />
           </Grid>
         ))}
