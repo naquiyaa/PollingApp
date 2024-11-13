@@ -12,6 +12,7 @@ const apiRequest = async (method, url, data = {}, token = "") => {
       data,
       headers,
     });
+    console.log("api response: ", response.data)
     return response.data;
   } catch (error) {
     console.error(`Error in ${method.toUpperCase()} ${url}:`, error);

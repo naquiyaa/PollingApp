@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AppBar, Toolbar, Button, Typography } from "@mui/material";
+import { AppBar, Toolbar, Button, Typography, Box } from "@mui/material";
 
 const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   const userName = localStorage.getItem("userName");
@@ -23,9 +23,12 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Polling App
-        </Typography>
+      <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Polling App
+          </Typography>
+        </Link>
+        <Box sx={{ display: "flex", marginLeft: "auto" }}>
         {isAuthenticated ? (
           <div>
             <Button color="inherit" onClick={handleLogout}>
@@ -45,6 +48,7 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
             </Button>
           </>
         )}
+        </Box>
       </Toolbar>
     </AppBar>
   );

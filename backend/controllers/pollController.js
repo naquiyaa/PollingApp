@@ -2,45 +2,49 @@ const Poll = require("../models/Poll");
 const axios = require("axios"); // To fetch image from URL
 const { optimizeImageWithTinyPNG } = require("../utils/imageProcessor");
 
-// Create a new poll
+//utility function to process images
+const processImage = async (image) => {
+  let imageBuffer;
 
+  if (image.startsWith("http")) {
+    const response = await axios({ url: image, responseType: "arraybuffer" });
+    imageBuffer = Buffer.from(response.data);
+  } else {
+    if (image.includes(",")) {
+      base64String = image.split(",")[1];
+    }
+    else{
+      base64String = image;
+    }
+    imageBuffer = Buffer.from(base64String, "base64");
+  }
+
+  // Optimize image
+  return optimizeImageWithTinyPNG(imageBuffer);
+};
+
+const validateOptions = (options) =>
+  options.filter((option) => typeof option.text === "string" && option.text.trim() !== "");
+
+// Create a new poll
 const createPoll = async (req, res) => {
   const { question, options, image } = req.body;
 
   try {
     // Validate options length
     if (options.length < 2 || options.length > 5) {
-      return res
-        .status(400)
-        .json({ message: "Poll must have between 2 and 5 options" });
+      return res.status(400).json({ message: "Poll must have between 2 and 5 options" });
     }
 
-    let imageBuffer;
+    const validOptions = validateOptions(options);
 
-    // Check if the image is a URL or base64 string
-    if (image.startsWith("http")) {
-      // If it's a URL, fetch the image and convert it to a buffer
-      const response = await axios({ url: image, responseType: "arraybuffer" });
-      imageBuffer = Buffer.from(response.data);
-    } else {
-
-      // If it's a base64 string, remove the prefix and convert to buffer
-      const base64String = image.split(",")[1]; // Split the string and take the part after the comma
-      imageBuffer = Buffer.from(base64String, "base64"); // Convert the base64 part to a buffer
+    //process the image
+    let optimizedImage = null;
+    if (image) {
+      const { optimizedImageBuffer, initialSize, finalSize } = await processImage(image);
+      console.log("Image optimized from", initialSize, "to", finalSize);
+      optimizedImage = optimizedImageBuffer.toString("base64");
     }
-
-    // Optimize the image using TinyPNG
-    const { optimizedImageBuffer, initialSize, finalSize } =
-      await optimizeImageWithTinyPNG(imageBuffer);
-    console.log("initial size: ", initialSize);
-    console.log("final size: ", finalSize);
-
-    // Save the optimized image as base64 string
-    const optimizedImage = optimizedImageBuffer.toString("base64"); // For base64 storage
-
-    const validOptions = req.body.options.filter(
-      (option) => typeof option.text === "string" && option.text.trim() !== ""
-    );
     // Create the poll with the optimized image
     const poll = new Poll({
       question,
@@ -140,24 +144,17 @@ const updatePoll = async (req, res) => {
 
     // Check if user is the creator
     if (poll.createdBy.toString() !== req.userId) {
-      return res
-        .status(403)
-        .json({ message: "You can only update your own polls" });
+      return res.status(403).json({ message: "You can only update your own polls" });
     }
 
     // Validate options length
     if (options && (options.length < 2 || options.length > 5)) {
-      return res
-        .status(400)
-        .json({ message: "Poll must have between 2 and 5 options" });
+      return res.status(400).json({ message: "Poll must have between 2 and 5 options" });
     }
 
     // Update poll details
+    const validOptions = validateOptions(options || []);
     poll.question = question || poll.question;
-
-    const validOptions = req.body.options.filter(
-      (option) => typeof option.text === "string" && option.text.trim() !== ""
-    );
     // Update options if new ones are provided
     if (options) {
       poll.options = validOptions.map((option) => ({
@@ -168,33 +165,9 @@ const updatePoll = async (req, res) => {
 
     // Handle image update (optimization before saving)
     if (image) {
-      if (image.startsWith("http")) {
-        // If it's a URL, fetch the image and convert it to a buffer
-        const response = await axios({
-          url: image,
-          responseType: "arraybuffer",
-        });
-        imageBuffer = Buffer.from(response.data);
-      } else {
-        // If it's a base64 string, convert it to a buffer
-        const base64String = image.split(",")[1];
-        imageBuffer = Buffer.from(base64String, "base64");
-      }
-
-      // Optimize the image using TinyPNG (or any other image optimization service)
-      const { optimizedImageBuffer, initialSize, finalSize } =
-        await optimizeImageWithTinyPNG(imageBuffer);
-
-      // Convert optimized image to base64 and save the new size
-      const optimizedImage = optimizedImageBuffer.toString("base64");
-      poll.image = optimizedImage; // Save the optimized image
-      poll.imageSize = {
-        original: initialSize, // Original image size in bytes
-        optimized: finalSize, // Optimized image size in bytes
-      };
-    } else {
-      // If no image is provided, ensure imageSize is reset (if the image is not being updated)
-      poll.imageSize = poll.imageSize || { original: 0, optimized: 0 };
+      const { optimizedImageBuffer, initialSize, finalSize } = await processImage(image);
+      console.log("Image optimized from", initialSize, "to", finalSize);
+      poll.image = optimizedImageBuffer.toString("base64");
     }
 
     // Save the updated poll
@@ -203,9 +176,7 @@ const updatePoll = async (req, res) => {
     const allPolls = await Poll.find();
 
     // Return success response with all polls
-    res
-      .status(200)
-      .json({ message: "Poll updated successfully", polls: allPolls });
+    res.status(200).json({ message: "Poll updated successfully", polls: allPolls });
 
     // Return success response
   } catch (error) {
@@ -216,30 +187,29 @@ const updatePoll = async (req, res) => {
 
 // Delete a poll (only if user is the creator)
 const deletePoll = async (req, res) => {
-  const { pollId } = req.body;
-
   try {
-    // Find the poll
+    const { pollId } = req.params;
+    const userId = req.userId; // Assuming you have user info from middleware (like JWT auth)
+
+    // Find the poll by its ID
     const poll = await Poll.findById(pollId);
+
     if (!poll) {
-      return res.status(404).json({ message: "Poll not found" });
+      return res.status(404).send({ message: "Poll not found" });
     }
 
-    // Check if user is the creator
-    if (poll.createdBy.toString() !== req.userId) {
-      return res
-        .status(403)
-        .json({ message: "You can only delete your own polls" });
+    // Check if the logged-in user is the creator of the poll
+    if (poll.createdBy.toString() !== userId.toString()) {
+      return res.status(403).send({ message: "You can only delete your own polls" });
     }
 
-    // Delete the poll
-    await poll.remove();
+    // Proceed with deletion if the user is the creator
+    await Poll.findByIdAndDelete(pollId);
 
-    // Return success response
-    res.status(200).json({ message: "Poll deleted successfully" });
+    res.status(200).send({ message: "Poll deleted successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error deleting poll:", error);
+    res.status(500).send({ message: "Server error" });
   }
 };
 

@@ -10,13 +10,10 @@ const isRegisteredUser = async (req, res, next) => {
     try {
       // Extract token from the authorization header
       token = req.headers.authorization.split(" ")[1];
-      console.log("Authorization header: ", req.headers.authorization);
-console.log("Token extracted: ", token);
 
 
       // Decode the token and get the user ID
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log("decoded:; ", decoded)
 
       // Attach user to request object
       req.userId = decoded.userId;

@@ -3,7 +3,7 @@ const router = express.Router();
 const { createPoll, getPolls, votePoll, updatePoll, deletePoll, getPollsByUser } = require("../controllers/pollController");
 const { isRegisteredUser } = require("../middleware/authMiddleware");  // Protect middleware
 
-// Route to create a new poll (protected)
+// Route to create a new poll
 router.post("/", isRegisteredUser, createPoll);
 
 // Route to get all polls
@@ -19,6 +19,6 @@ router.post("/vote", votePoll);
 router.put("/:pollId", isRegisteredUser, updatePoll);
 
 // Route to delete a poll (protected)
-router.delete("/:id", isRegisteredUser, deletePoll);
+router.delete("/:pollId", isRegisteredUser, deletePoll);
 
 module.exports = router;

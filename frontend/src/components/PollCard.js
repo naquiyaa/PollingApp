@@ -1,11 +1,8 @@
 // PollCard.js
-import React from 'react';
-import { Card, CardContent, Typography, Box, Button } from '@mui/material';
+import React from "react";
+import { Card, CardContent, Typography, Box, Button } from "@mui/material";
 
-const PollCard = ({ poll, handleVote, onEdit, isUserLoggedIn, userId }) => {
-  console.log("naqu0: ", isUserLoggedIn)
-  console.log("naqu1: ", poll.createdBy);
-  console.log("naqu2: ", userId)
+const PollCard = ({ poll, handleVote, onEdit, onDelete, isUserLoggedIn, userId }) => {
   return (
     <Card>
       <CardContent>
@@ -16,7 +13,7 @@ const PollCard = ({ poll, handleVote, onEdit, isUserLoggedIn, userId }) => {
             <img
               src={`data:image/jpeg;base64,${poll.image}`}
               alt="Poll visual"
-              style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
+              style={{ width: "100%", height: "auto", borderRadius: "8px" }}
             />
           </Box>
         )}
@@ -29,11 +26,7 @@ const PollCard = ({ poll, handleVote, onEdit, isUserLoggedIn, userId }) => {
               <Typography variant="body2">
                 {option.text} - {option.votes} votes
               </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => handleVote(poll._id, option._id)}
-              >
+              <Button variant="contained" color="primary" onClick={() => handleVote(poll._id, option._id)}>
                 Vote
               </Button>
             </Box>
@@ -42,14 +35,14 @@ const PollCard = ({ poll, handleVote, onEdit, isUserLoggedIn, userId }) => {
 
         {/* Display Edit button if the user is logged in */}
         {isUserLoggedIn && userId === poll.createdBy && (
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={() => onEdit(poll)}
-            style={{ marginTop: '10px' }}
-          >
-            Edit
-          </Button>
+          <Box display="flex" justifyContent="flex-start" alignItems="center" gap="10px">
+            <Button variant="outlined" color="secondary" onClick={() => onEdit(poll)} style={{ marginTop: "10px" }}>
+              Edit
+            </Button>
+            <Button variant="outlined" color="error" onClick={() => onDelete(poll._id)} style={{ marginTop: "10px" }}>
+              Delete
+            </Button>
+          </Box>
         )}
       </CardContent>
     </Card>
