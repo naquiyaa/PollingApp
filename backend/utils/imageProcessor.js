@@ -1,3 +1,4 @@
+const axios = require("axios"); // To fetch image from URL
 const tinify = require("tinify");
 require('dotenv').config();
 tinify.key = process.env.TINY_PNG_API_KEY;
@@ -24,9 +25,31 @@ const optimizeImageWithTinyPNG = async (imageBuffer) => {
     }
 };
 
+//utility function to process images
+// load image either from url or base encoded string -> convert to buffer and optimize it
+const processImage = async (image) => {
+    let imageBuffer;
+  
+    if (image.startsWith("http")) {
+      const response = await axios({ url: image, responseType: "arraybuffer" });
+      imageBuffer = Buffer.from(response.data);
+    } else {
+      if (image.includes(",")) {
+        base64String = image.split(",")[1];
+      }
+      else{
+        base64String = image;
+      }
+      imageBuffer = Buffer.from(base64String, "base64");
+    }
+  
+    // Optimize image
+    return optimizeImageWithTinyPNG(imageBuffer);
+  };
+
 
 
 
 module.exports = {
-    optimizeImageWithTinyPNG
+    optimizeImageWithTinyPNG, processImage
 };

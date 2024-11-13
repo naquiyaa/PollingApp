@@ -30,7 +30,7 @@ export const registerUser = async (userData) => {
   const response = await apiRequest('post', '/users/register', userData);
   const token = response.token; // Ensure that token exists in the response
   saveToken(token); // Save token if available
-  return response;
+  return response.token;
 };
 
 // Login a user

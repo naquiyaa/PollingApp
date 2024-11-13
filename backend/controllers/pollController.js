@@ -1,30 +1,10 @@
 const Poll = require("../models/Poll");
-const axios = require("axios"); // To fetch image from URL
-const { optimizeImageWithTinyPNG } = require("../utils/imageProcessor");
-
-//utility function to process images
-const processImage = async (image) => {
-  let imageBuffer;
-
-  if (image.startsWith("http")) {
-    const response = await axios({ url: image, responseType: "arraybuffer" });
-    imageBuffer = Buffer.from(response.data);
-  } else {
-    if (image.includes(",")) {
-      base64String = image.split(",")[1];
-    }
-    else{
-      base64String = image;
-    }
-    imageBuffer = Buffer.from(base64String, "base64");
-  }
-
-  // Optimize image
-  return optimizeImageWithTinyPNG(imageBuffer);
-};
+const { processImage } = require("../utils/imageProcessor");
 
 const validateOptions = (options) =>
-  options.filter((option) => typeof option.text === "string" && option.text.trim() !== "");
+  options.filter(
+    (option) => typeof option.text === "string" && option.text.trim() !== ""
+  );
 
 // Create a new poll
 const createPoll = async (req, res) => {
@@ -33,15 +13,21 @@ const createPoll = async (req, res) => {
   try {
     // Validate options length
     if (options.length < 2 || options.length > 5) {
-      return res.status(400).json({ message: "Poll must have between 2 and 5 options" });
+      return res
+        .status(400)
+        .json({ message: "Poll must have between 2 and 5 options" });
     }
 
     const validOptions = validateOptions(options);
 
     //process the image
     let optimizedImage = null;
+    let imageInitialSize, imageFinalSize;
     if (image) {
-      const { optimizedImageBuffer, initialSize, finalSize } = await processImage(image);
+      const { optimizedImageBuffer, initialSize, finalSize } =
+        await processImage(image);
+        imageInitialSize = initialSize;
+        imageFinalSize = finalSize;
       console.log("Image optimized from", initialSize, "to", finalSize);
       optimizedImage = optimizedImageBuffer.toString("base64");
     }
@@ -62,6 +48,8 @@ const createPoll = async (req, res) => {
     res.status(201).json({
       message: "Poll created successfully",
       polls: allPolls,
+      initialSize: imageInitialSize,
+      finalSize: imageFinalSize,
     });
   } catch (error) {
     console.error(error);
@@ -144,12 +132,16 @@ const updatePoll = async (req, res) => {
 
     // Check if user is the creator
     if (poll.createdBy.toString() !== req.userId) {
-      return res.status(403).json({ message: "You can only update your own polls" });
+      return res
+        .status(403)
+        .json({ message: "You can only update your own polls" });
     }
 
     // Validate options length
     if (options && (options.length < 2 || options.length > 5)) {
-      return res.status(400).json({ message: "Poll must have between 2 and 5 options" });
+      return res
+        .status(400)
+        .json({ message: "Poll must have between 2 and 5 options" });
     }
 
     // Update poll details
@@ -165,7 +157,8 @@ const updatePoll = async (req, res) => {
 
     // Handle image update (optimization before saving)
     if (image) {
-      const { optimizedImageBuffer, initialSize, finalSize } = await processImage(image);
+      const { optimizedImageBuffer, initialSize, finalSize } =
+        await processImage(image);
       console.log("Image optimized from", initialSize, "to", finalSize);
       poll.image = optimizedImageBuffer.toString("base64");
     }
@@ -176,7 +169,9 @@ const updatePoll = async (req, res) => {
     const allPolls = await Poll.find();
 
     // Return success response with all polls
-    res.status(200).json({ message: "Poll updated successfully", polls: allPolls });
+    res
+      .status(200)
+      .json({ message: "Poll updated successfully", polls: allPolls });
 
     // Return success response
   } catch (error) {
@@ -200,7 +195,9 @@ const deletePoll = async (req, res) => {
 
     // Check if the logged-in user is the creator of the poll
     if (poll.createdBy.toString() !== userId.toString()) {
-      return res.status(403).send({ message: "You can only delete your own polls" });
+      return res
+        .status(403)
+        .send({ message: "You can only delete your own polls" });
     }
 
     // Proceed with deletion if the user is the creator

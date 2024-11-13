@@ -7,10 +7,7 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("userName");
+    localStorage.clear();
     setIsAuthenticated(false);
 
     // Force a page reload to reset any client-side state

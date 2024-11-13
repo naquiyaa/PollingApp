@@ -12,7 +12,14 @@ import {
   Input,
   CircularProgress,
 } from "@mui/material";
-import { fetchPolls, votePoll, fetchUserPolls, createPoll, updatePoll, deletePoll } from "../api/pollApi";
+import {
+  fetchPolls,
+  votePoll,
+  fetchUserPolls,
+  createPoll,
+  updatePoll,
+  deletePoll,
+} from "../api/pollApi";
 import PollCard from "../components/PollCard";
 
 const Home = () => {
@@ -75,7 +82,9 @@ const Home = () => {
             ? {
                 ...poll,
                 options: poll.options.map((option) =>
-                  option._id === optionId ? { ...option, votes: option.votes + 1 } : option
+                  option._id === optionId
+                    ? { ...option, votes: option.votes + 1 }
+                    : option
                 ),
               }
             : poll
@@ -114,7 +123,9 @@ const Home = () => {
 
       // Update the state to remove the deleted poll from the displayed list
       setPolls((prevPolls) => prevPolls.filter((p) => p._id !== poll));
-      setUserPolls((prevUserPolls) => prevUserPolls.filter((p) => p._id !== poll));
+      setUserPolls((prevUserPolls) =>
+        prevUserPolls.filter((p) => p._id !== poll)
+      );
     } catch (error) {
       console.error("Error deleting poll:", error);
     }
@@ -136,16 +147,27 @@ const Home = () => {
 
     try {
       if (currentPoll) {
-       
         // Update poll if editing an existing poll
-        const updatedPoll = await updatePoll(currentPoll._id, pollData, localStorage.getItem("token"));
-       
+        await updatePoll(
+          currentPoll._id,
+          pollData,
+          localStorage.getItem("token")
+        );
+
         setPolls((updatedPoll) => updatedPoll.map((poll) => poll));
       } else {
-       
         // Create new poll
-        const newPoll = await createPoll(pollData, localStorage.getItem("token"));
-       
+        const createdPoll = await createPoll(
+          pollData,
+          localStorage.getItem("token")
+        );
+        // Show an alert with initial and final sizes
+        alert(
+          `Poll created with initial size: ${createdPoll.initialSize} bytes and final size: ${createdPoll.finalSize} bytes`
+        );
+        console.log("initial size: ", createdPoll.initialSize);
+        console.log("final size: ", createdPoll.finalSize);
+
         setPolls((newPoll) => newPoll.map((poll) => poll));
       }
 
@@ -205,7 +227,12 @@ const Home = () => {
 
       {/* Show the Create New Poll button only if the user is logged in */}
       {isUserLoggedIn && (
-        <Button variant="contained" color="primary" onClick={handleCreatePoll} style={{ marginBottom: "20px" }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleCreatePoll}
+          style={{ marginBottom: "20px" }}
+        >
           Create New Poll
         </Button>
       )}
@@ -270,9 +297,18 @@ const Home = () => {
 
           {/* Image Upload */}
           <div>
-            <Input type="file" accept="image/*" onChange={handleImageChange} style={{ marginTop: "20px" }} />
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              style={{ marginTop: "20px" }}
+            />
             {imageFileName && (
-              <Typography variant="caption" display="block" style={{ marginTop: "8px" }}>
+              <Typography
+                variant="caption"
+                display="block"
+                style={{ marginTop: "8px" }}
+              >
                 Selected file: {imageFileName}
               </Typography>
             )}
@@ -294,7 +330,13 @@ const Home = () => {
             Cancel
           </Button>
           <Button onClick={handleSubmitPoll} color="primary" disabled={loading}>
-            {loading ? <CircularProgress size={24} /> : currentPoll ? "Update Poll" : "Create Poll"}
+            {loading ? (
+              <CircularProgress size={24} />
+            ) : currentPoll ? (
+              "Update Poll"
+            ) : (
+              "Create Poll"
+            )}
           </Button>
         </DialogActions>
       </Dialog>

@@ -20,7 +20,7 @@ app.use("/api/users", userRoutes);
 
 // Sample test route
 app.get("/", (req, res) => {
-  res.send("API is running...");
+  res.send("Server is running...");
 });
 
 // Start the server

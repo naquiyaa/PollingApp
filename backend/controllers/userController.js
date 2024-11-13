@@ -17,7 +17,6 @@ const registerUser = async (req, res) => {
     // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
-      console.log("im here now")
       return res.status(400).json({ message: "User already exists" });
     }
 
@@ -28,10 +27,6 @@ const registerUser = async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-
-    console.log("token is as follows: ", token)
-    console.log("userId: ",  user._id  )
-    console.log("user: ", user)
 
     // Send response with token
     res.status(201).json({ message: "User registered successfully", token });
