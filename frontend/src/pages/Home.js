@@ -56,7 +56,7 @@ const Home = () => {
     };
 
     getPolls(); // Fetch the polls
-  }, []);
+  }, [openDialog]);
 
   // Fetch polls created by the logged-in user
   const fetchUserPollsByUser = async () => {
